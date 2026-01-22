@@ -25,7 +25,7 @@ func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: gin.DefaultWriter})
 
 	// Parse template
-	tpl := template.Must(template.ParseFiles("templates/index.html"))
+	tpl := template.Must(template.ParseFiles("./templates/index.html"))
 
 	// Gin setup
 	r := gin.New()
@@ -72,7 +72,7 @@ func main() {
 				if action == "format_a" || action == "format_both" {
 					a, err = prettyJSON(a)
 					if err != nil {
-						render(c, tpl, PageData{
+						render(c, tpl, domain.PageData{
 							A:          a,
 							B:          b,
 							Mode:       mode,
@@ -86,7 +86,7 @@ func main() {
 				if action == "format_b" || action == "format_both" {
 					b, err = prettyJSON(b)
 					if err != nil {
-						render(c, tpl, PageData{
+						render(c, tpl, domain.PageData{
 							A:          a,
 							B:          b,
 							Mode:       mode,
@@ -102,7 +102,7 @@ func main() {
 				if action == "format_a" || action == "format_both" {
 					a, err = prettyXML(a)
 					if err != nil {
-						render(c, tpl, PageData{
+						render(c, tpl, domain.PageData{
 							A:          a,
 							B:          b,
 							Mode:       mode,
@@ -116,7 +116,7 @@ func main() {
 				if action == "format_b" || action == "format_both" {
 					b, err = prettyXML(b)
 					if err != nil {
-						render(c, tpl, PageData{
+						render(c, tpl, domain.PageData{
 							A:          a,
 							B:          b,
 							Mode:       mode,
@@ -132,7 +132,7 @@ func main() {
 				// text mode: do nothing
 			}
 
-			render(c, tpl, PageData{
+			render(c, tpl, domain.PageData{
 				A:          a,
 				B:          b,
 				Mode:       mode,
@@ -155,7 +155,7 @@ func main() {
 			var err error
 			compareA, err = prettyJSON(a)
 			if err != nil {
-				render(c, tpl, PageData{
+				render(c, tpl, domain.PageData{
 					A:          a,
 					B:          b,
 					Mode:       mode,
@@ -167,7 +167,7 @@ func main() {
 			}
 			compareB, err = prettyJSON(b)
 			if err != nil {
-				render(c, tpl, PageData{
+				render(c, tpl, domain.PageData{
 					A:          a,
 					B:          b,
 					Mode:       mode,
@@ -181,7 +181,7 @@ func main() {
 			var err error
 			compareA, err = prettyXML(a)
 			if err != nil {
-				render(c, tpl, PageData{
+				render(c, tpl, domain.PageData{
 					A:          a,
 					B:          b,
 					Mode:       mode,
@@ -193,7 +193,7 @@ func main() {
 			}
 			compareB, err = prettyXML(b)
 			if err != nil {
-				render(c, tpl, PageData{
+				render(c, tpl, domain.PageData{
 					A:          a,
 					B:          b,
 					Mode:       mode,
@@ -220,7 +220,7 @@ func main() {
 
 		normalized := na == nb
 
-		data := PageData{
+		data := domain.PageData{
 			A:          a,
 			B:          b,
 			Mode:       mode,
@@ -262,7 +262,7 @@ func zerologMiddleware() gin.HandlerFunc {
 	}
 }
 
-func render(c *gin.Context, tpl *template.Template, data PageData) {
+func render(c *gin.Context, tpl *template.Template, data domain.PageData) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.Status(http.StatusOK)
 
@@ -369,7 +369,7 @@ func splitLines(s string) []string {
 	return strings.Split(s, "\n")
 }
 
-func basicLineDiffWithHighlight(a, b string) []LineDiffRow {
+func basicLineDiffWithHighlight(a, b string) []domain.LineDiffRow {
 	aLines := splitLines(a)
 	bLines := splitLines(b)
 
@@ -378,7 +378,7 @@ func basicLineDiffWithHighlight(a, b string) []LineDiffRow {
 		max = len(bLines)
 	}
 
-	out := make([]LineDiffRow, 0, max)
+	out := make([]domain.LineDiffRow, 0, max)
 
 	for i := 0; i < max; i++ {
 		var av, bv string
@@ -404,7 +404,7 @@ func basicLineDiffWithHighlight(a, b string) []LineDiffRow {
 			status = "added"
 		}
 
-		row := LineDiffRow{
+		row := domain.LineDiffRow{
 			LineNum: i + 1,
 			A:       av,
 			B:       bv,

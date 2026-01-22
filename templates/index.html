@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Local Diff Checker (Go)</title>
+    <style>
+        body { font-family: system-ui, Arial; margin: 24px; }
+        textarea { width: 100%; height: 200px; font-family: ui-monospace, monospace; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
+        .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+        .ok { background: #e7f7ec; border: 1px solid #bfe7cb; }
+        .bad { background: #fdeaea; border: 1px solid #f2b9b9; }
+        .warn { background: #fff8db; border: 1px solid #f0e1a0; }
+        table { width: 100%; border-collapse: collapse; font-family: ui-monospace, monospace; }
+        td, th { border: 1px solid #eee; padding: 6px; vertical-align: top; }
+        .same { background: #fff; }
+        .changed { background: #fff8db; }
+        .added { background: #e7f7ec; }
+        .removed { background: #fdeaea; }
+        mark { padding: 0 2px; border-radius: 4px; }
+        .muted { color: #666; font-size: 12px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+        .btn { padding: 8px 12px; border-radius: 10px; border: 1px solid #ccc; background: #fafafa; cursor: pointer; }
+        .btn:hover { background: #f0f0f0; }
+        .error { color: #b00020; font-weight: 600; }
+    </style>
+</head>
+
+<body>
+<h1>Local Diff Checker</h1>
+<p class="muted">
+    Runs locally on <b>127.0.0.1</b>. Paste text or upload files. Nothing is sent anywhere.
+</p>
+
+{{if .Error}}
+<p class="error">Error: {{.Error}}</p>
+{{end}}
+
+<form method="POST" action="/compare" enctype="multipart/form-data">
+    <div class="card">
+        <div class="controls">
+            <label>
+                Mode:
+                <select name="mode">
+                    <option value="text" {{if eq .Mode "text"}}selected{{end}}>Text</option>
+                    <option value="json" {{if eq .Mode "json"}}selected{{end}}>JSON (semantic normalize)</option>
+                </select>
+            </label>
+
+            <label>
+                <input type="checkbox" name="ignore_ws" {{if .IgnoreWS}}checked{{end}} />
+                Ignore whitespace
+            </label>
+
+            <label>
+                <input type="checkbox" name="ignore_case" {{if .IgnoreCase}}checked{{end}} />
+                Ignore case
+            </label>
+
+            <button class="btn" type="submit">Compare</button>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 12px;">
+        <div class="card">
+            <h3>Text A</h3>
+            <p class="muted">Paste text OR upload a file:</p>
+            <input type="file" name="file_a" />
+            <div style="height: 8px;"></div>
+            <textarea name="a">{{.A}}</textarea>
+        </div>
+
+        <div class="card">
+            <h3>Text B</h3>
+            <p class="muted">Paste text OR upload a file:</p>
+            <input type="file" name="file_b" />
+            <div style="height: 8px;"></div>
+            <textarea name="b">{{.B}}</textarea>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<h2>Results</h2>
+
+<div class="card">
+    <p>
+        Exact match:
+        {{if .ExactMatch}}
+        <span class="pill ok">YES</span>
+        {{else}}
+        <span class="pill bad">NO</span>
+        {{end}}
+    </p>
+
+    <p>
+        Normalized match:
+        {{if .NormalizedMatch}}
+        <span class="pill ok">YES</span>
+        {{else}}
+        <span class="pill bad">NO</span>
+        {{end}}
+        <span class="muted">(based on ignore options)</span>
+    </p>
+
+    <p class="muted">A length: {{.ALen}} | SHA256: {{.AHash}}</p>
+    <p class="muted">B length: {{.BLen}} | SHA256: {{.BHash}}</p>
+</div>
+
+<h3>Side-by-side diff</h3>
+<table>
+    <thead>
+    <tr>
+        <th style="width: 60px;">Line</th>
+        <th>A</th>
+        <th>B</th>
+        <th style="width: 110px;">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .LineDiff}}
+    <tr class="{{.Status}}">
+        <td>{{.LineNum}}</td>
+        <td><pre style="margin:0; white-space: pre-wrap;">{{.AHTML}}</pre></td>
+        <td><pre style="margin:0; white-space: pre-wrap;">{{.BHTML}}</pre></td>
+        <td>{{.Status}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
+</body>
+</html>
