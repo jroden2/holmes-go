@@ -63,10 +63,20 @@ go build ./cmd/*
 I've now added automatic builds tagged using goreleaser, now found on the ["releases" section](https://github.com/jroden2/holmes-go/releases/) - Builds for both Mac and Windows
 
 #### macOS Users
-On first launch, you may see a security warning. To bypass:
-1. Right-click `holmes` and select "Open"
-2. Click "Open" in the security dialog
-3. Or run: `xattr -d com.apple.quarantine holmes`
+Since this app is unsigned, macOS will block it by default. To install:
+
+**Method 1: Remove quarantine attribute**
+```bash
+xattr -dr com.apple.quarantine holmes
+./holmes
+```
+
+**Method 2: Allow in System Settings**
+1. Try to open `holmes` (it will be blocked)
+2. Go to System Settings → Privacy & Security
+3. Scroll down to "Security" section
+4. Click "Open Anyway" next to the holmes message
+5. Confirm by clicking "Open"
 
 ---
 
