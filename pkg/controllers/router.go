@@ -20,7 +20,7 @@ func Initialise(logger *zerolog.Logger) {
 
 	HOST := os.Getenv("ServerHost")
 	if HOST == "" {
-		HOST = "localhost"
+		HOST = ""
 	}
 	PORT := os.Getenv("ServerPort")
 	if PORT == "" {
