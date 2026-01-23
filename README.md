@@ -56,7 +56,7 @@ Holmes includes a user interface, making it easy to visualise differences withou
 ```bash
 git clone https://github.com/jroden2/holmes-go.git
 cd holmes-go
-go build
+go build ./cmd/*
 ```
 
 ---
