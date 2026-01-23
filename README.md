@@ -37,6 +37,12 @@ Compare JSON files in a structure-aware way:
 * Ignores formatting and key ordering differences
 * Highlights actual data changes
 
+### XML Comparison
+
+Exactly like JSON, you can compare XML files in a structure-aware way:
+* Ignores formatting and key ordering differences
+* Highlights actual data changes
+
 ### UI-Based
 
 Holmes includes a user interface, making it easy to visualise differences without relying on command-line workflows.
