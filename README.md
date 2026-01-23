@@ -51,6 +51,15 @@ Holmes includes a user interface, making it easy to visualise differences withou
 
 ## Installation
 
+## Pull from docker
+Pull and run the Docker image from Docker Hub:
+```bash
+docker pull jroden2/holmes-go:latest
+docker run -p 8080:8080 jroden2/holmes-go:latest
+```
+
+The application will be available at `http://localhost:8080`
+
 ### Build from source
 
 ```bash
