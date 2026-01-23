@@ -17,6 +17,10 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=0
+    hooks:
+      post:
+        - cmd: codesign -s - {{ .Path }}
+          os: darwin
 
 universal_binaries:
   - id: holmes
