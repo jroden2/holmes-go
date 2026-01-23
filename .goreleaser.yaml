@@ -16,6 +16,11 @@ builds:
     env:
       - CGO_ENABLED=0
 
+universal_binaries:
+  - id: holmes
+    replace: true
+    name_template: 'holmes'
+
 archives:
   - format: tar.gz
     name_template: >-
@@ -33,7 +38,3 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-      
-universal_binaries:
-  - replace: true
-    name_template: 'holmes_macos_universal'
