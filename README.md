@@ -59,6 +59,9 @@ cd holmes-go
 go build ./cmd/*
 ```
 
+### Don't want to build or can't?
+I've now added automatic builds tagged using goreleaser, now found on the ["releases" section](https://github.com/jroden2/holmes-go/releases/) - Builds for both Mac and Windows
+
 ---
 
 ## Security-First by Design
