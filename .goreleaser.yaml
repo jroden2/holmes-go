@@ -1,0 +1,26 @@
+# .goreleaser.yaml
+version: 0.0.1
+project_name: holmes
+
+builds:
+  - main: ./cmd/
+    binary: holmes
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin            # Mac
+      - windows           # Windows
+    goarch:
+      - amd64             # Intel / Standard PC
+      - arm64             # Apple Silicon / ARM Windows
+    ldflags:
+      - -s -w             # Shrinks the binary size
+
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+universal_binaries:
+  - replace: true
+    name_template: 'holmes_macos_universal'
