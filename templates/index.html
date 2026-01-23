@@ -2,133 +2,260 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Local Diff Checker (Go)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { font-family: system-ui, Arial; margin: 24px; }
-        textarea { width: 100%; height: 200px; font-family: ui-monospace, monospace; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
-        .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
-        .ok { background: #e7f7ec; border: 1px solid #bfe7cb; }
-        .bad { background: #fdeaea; border: 1px solid #f2b9b9; }
-        .warn { background: #fff8db; border: 1px solid #f0e1a0; }
-        table { width: 100%; border-collapse: collapse; font-family: ui-monospace, monospace; }
-        td, th { border: 1px solid #eee; padding: 6px; vertical-align: top; }
+        body {
+            background: #f8f9fa;
+        }
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        textarea {
+            font-family: ui-monospace, 'Courier New', monospace;
+            font-size: 13px;
+        }
+        table {
+            font-family: ui-monospace, 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .diff-table td, .diff-table th {
+            vertical-align: top;
+            border: 1px solid #dee2e6;
+        }
         .same { background: #fff; }
-        .changed { background: #fff8db; }
-        .added { background: #e7f7ec; }
-        .removed { background: #fdeaea; }
-        mark { padding: 0 2px; border-radius: 4px; }
-        .muted { color: #666; font-size: 12px; }
-        .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-        .btn { padding: 8px 12px; border-radius: 10px; border: 1px solid #ccc; background: #fafafa; cursor: pointer; }
-        .btn:hover { background: #f0f0f0; }
-        .error { color: #b00020; font-weight: 600; }
+        .changed { background: #fff3cd; }
+        .added { background: #d1e7dd; }
+        .removed { background: #f8d7da; }
+        mark {
+            padding: 0 2px;
+            border-radius: 4px;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 
 <body>
-<h1>Local Diff Checker</h1>
-<p class="muted">
-    Runs locally on <b>127.0.0.1</b>. Paste text or upload files. Nothing is sent anywhere.
-</p>
-
-{{if .Error}}
-<p class="error">Error: {{.Error}}</p>
-{{end}}
-
-<form method="POST" action="/compare" enctype="multipart/form-data">
-    <div class="card">
-        <div class="controls">
-            <label>
-                Mode:
-                <select name="mode">
-                    <option value="text" {{if eq .Mode "text"}}selected{{end}}>Text</option>
-                    <option value="json" {{if eq .Mode "json"}}selected{{end}}>JSON (semantic normalize)</option>
-                </select>
-            </label>
-
-            <label>
-                <input type="checkbox" name="ignore_ws" {{if .IgnoreWS}}checked{{end}} />
-                Ignore whitespace
-            </label>
-
-            <label>
-                <input type="checkbox" name="ignore_case" {{if .IgnoreCase}}checked{{end}} />
-                Ignore case
-            </label>
-
-            <button class="btn" type="submit">Compare</button>
+<div class="main-container">
+    <div class="sticky-header">
+        <div class="bg-white border-bottom">
+            <div class="container-fluid py-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="h3 mb-1">
+                            <i class="bi bi-files-alt text-primary"></i> Local Diff Checker
+                        </h1>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-shield-check"></i> Runs locally on <strong>127.0.0.1</strong>. Nothing is sent anywhere.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="grid" style="margin-top: 12px;">
-        <div class="card">
-            <h3>Text A</h3>
-            <p class="muted">Paste text OR upload a file:</p>
-            <input type="file" name="file_a" />
-            <div style="height: 8px;"></div>
-            <textarea name="a">{{.A}}</textarea>
+    <div class="container-fluid py-4">
+        {{if .Error}}
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>{{.Error}}</div>
+        </div>
+        {{end}}
+
+        <form method="POST" action="/compare" enctype="multipart/form-data">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Mode</label>
+                            <select name="mode" class="form-select">
+                                <option value="text" {{if eq .Mode "text"}}selected{{end}}>Text</option>
+                                <option value="json" {{if eq .Mode "json"}}selected{{end}}>JSON (semantic normalize)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted mb-1">Options</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="ignore_ws" id="ignoreWS" {{if .IgnoreWS}}checked{{end}} />
+                                <label class="form-check-label" for="ignoreWS">
+                                    Ignore whitespace
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="ignore_case" id="ignoreCase" {{if .IgnoreCase}}checked{{end}} />
+                                <label class="form-check-label" for="ignoreCase">
+                                    Ignore case
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 ms-auto text-end">
+                            <label class="form-label small text-muted mb-1">&nbsp;</label>
+                            <button class="btn btn-primary d-block w-100" type="submit">
+                                <i class="bi bi-search"></i> Compare
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-file-text text-info"></i> Text A
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Paste text OR upload a file:</p>
+                            <input type="file" name="file_a" class="form-control mb-3" />
+                            <textarea name="a" class="form-control" rows="12">{{.A}}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-file-text text-success"></i> Text B
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Paste text OR upload a file:</p>
+                            <input type="file" name="file_b" class="form-control mb-3" />
+                            <textarea name="b" class="form-control" rows="12">{{.B}}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <hr class="my-4" />
+
+        <h2 class="h4 mb-3">
+            <i class="bi bi-bar-chart-line"></i> Results
+        </h2>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <strong class="me-2">Exact match:</strong>
+                            {{if .ExactMatch}}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> YES
+                            </span>
+                            {{else}}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> NO
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <strong class="me-2">Normalized match:</strong>
+                            {{if .NormalizedMatch}}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> YES
+                            </span>
+                            {{else}}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> NO
+                            </span>
+                            {{end}}
+                            <span class="text-muted small ms-2">(based on ignore options)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-info-circle"></i> A length: <strong>{{.ALen}}</strong>
+                        </p>
+                        <p class="text-muted small mb-0" style="word-break: break-all;">
+                            <i class="bi bi-hash"></i> SHA256: <code class="small">{{.AHash}}</code>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-info-circle"></i> B length: <strong>{{.BLen}}</strong>
+                        </p>
+                        <p class="text-muted small mb-0" style="word-break: break-all;">
+                            <i class="bi bi-hash"></i> SHA256: <code class="small">{{.BHash}}</code>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h3>Text B</h3>
-            <p class="muted">Paste text OR upload a file:</p>
-            <input type="file" name="file_b" />
-            <div style="height: 8px;"></div>
-            <textarea name="b">{{.B}}</textarea>
+        <h3 class="h5 mb-3">
+            <i class="bi bi-arrows-expand"></i> Side-by-side diff
+        </h3>
+
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-sm diff-table mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 60px;">Line</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th style="width: 110px;">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{range .LineDiff}}
+                    <tr class="{{.Status}}">
+                        <td class="text-center text-muted">{{.LineNum}}</td>
+                        <td><pre>{{.AHTML}}</pre></td>
+                        <td><pre>{{.BHTML}}</pre></td>
+                        <td>
+                            {{if eq .Status "same"}}
+                            <span class="badge bg-secondary">same</span>
+                            {{else if eq .Status "changed"}}
+                            <span class="badge bg-warning text-dark">changed</span>
+                            {{else if eq .Status "added"}}
+                            <span class="badge bg-success">added</span>
+                            {{else if eq .Status "removed"}}
+                            <span class="badge bg-danger">removed</span>
+                            {{else}}
+                            <span class="badge bg-light text-dark">{{.Status}}</span>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <div class="py-4"></div>
     </div>
-</form>
-
-<hr />
-
-<h2>Results</h2>
-
-<div class="card">
-    <p>
-        Exact match:
-        {{if .ExactMatch}}
-        <span class="pill ok">YES</span>
-        {{else}}
-        <span class="pill bad">NO</span>
-        {{end}}
-    </p>
-
-    <p>
-        Normalized match:
-        {{if .NormalizedMatch}}
-        <span class="pill ok">YES</span>
-        {{else}}
-        <span class="pill bad">NO</span>
-        {{end}}
-        <span class="muted">(based on ignore options)</span>
-    </p>
-
-    <p class="muted">A length: {{.ALen}} | SHA256: {{.AHash}}</p>
-    <p class="muted">B length: {{.BLen}} | SHA256: {{.BHash}}</p>
 </div>
 
-<h3>Side-by-side diff</h3>
-<table>
-    <thead>
-    <tr>
-        <th style="width: 60px;">Line</th>
-        <th>A</th>
-        <th>B</th>
-        <th style="width: 110px;">Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{range .LineDiff}}
-    <tr class="{{.Status}}">
-        <td>{{.LineNum}}</td>
-        <td><pre style="margin:0; white-space: pre-wrap;">{{.AHTML}}</pre></td>
-        <td><pre style="margin:0; white-space: pre-wrap;">{{.BHTML}}</pre></td>
-        <td>{{.Status}}</td>
-    </tr>
-    {{end}}
-    </tbody>
-</table>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

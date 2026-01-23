@@ -1,0 +1,234 @@
+package public
+
+import (
+	"html/template"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jroden2/holmes-go/pkg/domain"
+	"github.com/jroden2/holmes-go/pkg/utils"
+	"github.com/rs/zerolog"
+)
+
+type baseController struct {
+	logger *zerolog.Logger
+}
+
+func NewBaseController(logger *zerolog.Logger) BaseController {
+	return &baseController{logger: logger}
+}
+
+type BaseController interface {
+	Home(ctx *gin.Context)
+	Compare(ctx *gin.Context)
+}
+
+var (
+	tpl = template.Must(template.ParseFiles("./templates/index.html"))
+)
+
+func (c *baseController) Home(ctx *gin.Context) {
+	utils.Render(ctx, tpl, domain.PageData{Mode: "text"})
+}
+
+func (c *baseController) Compare(ctx *gin.Context) {
+	action := ctx.PostForm("action") // compare | format_a | format_b | format_both
+
+	mode := ctx.PostForm("mode")
+	if mode != "json" && mode != "xml" {
+		mode = "text"
+	}
+
+	ignoreWS := ctx.PostForm("ignore_ws") == "on"
+	ignoreCase := ctx.PostForm("ignore_case") == "on"
+
+	// Textareas
+	a := strings.TrimRight(ctx.PostForm("a"), "\r\n")
+	b := strings.TrimRight(ctx.PostForm("b"), "\r\n")
+
+	// Uploaded files override textarea if present
+	if fa, _ := utils.ReadGinFile(ctx, "file_a"); fa != "" {
+		a = fa
+	}
+	if fb, _ := utils.ReadGinFile(ctx, "file_b"); fb != "" {
+		b = fb
+	}
+
+	// Pretty-print actions
+	if action == "format_a" || action == "format_b" || action == "format_both" {
+		var err error
+
+		switch mode {
+		case "json":
+			if action == "format_a" || action == "format_both" {
+				a, err = utils.PrettyJSON(a)
+				if err != nil {
+					utils.Render(ctx, tpl, domain.PageData{
+						A:          a,
+						B:          b,
+						Mode:       mode,
+						IgnoreWS:   ignoreWS,
+						IgnoreCase: ignoreCase,
+						Error:      "Pretty JSON A failed: " + err.Error(),
+					})
+					return
+				}
+			}
+			if action == "format_b" || action == "format_both" {
+				b, err = utils.PrettyJSON(b)
+				if err != nil {
+					utils.Render(ctx, tpl, domain.PageData{
+						A:          a,
+						B:          b,
+						Mode:       mode,
+						IgnoreWS:   ignoreWS,
+						IgnoreCase: ignoreCase,
+						Error:      "Pretty JSON B failed: " + err.Error(),
+					})
+					return
+				}
+			}
+
+		case "xml":
+			if action == "format_a" || action == "format_both" {
+				a, err = utils.PrettyXML(a)
+				if err != nil {
+					utils.Render(ctx, tpl, domain.PageData{
+						A:          a,
+						B:          b,
+						Mode:       mode,
+						IgnoreWS:   ignoreWS,
+						IgnoreCase: ignoreCase,
+						Error:      "Pretty XML A failed: " + err.Error(),
+					})
+					return
+				}
+			}
+			if action == "format_b" || action == "format_both" {
+				b, err = utils.PrettyXML(b)
+				if err != nil {
+					utils.Render(ctx, tpl, domain.PageData{
+						A:          a,
+						B:          b,
+						Mode:       mode,
+						IgnoreWS:   ignoreWS,
+						IgnoreCase: ignoreCase,
+						Error:      "Pretty XML B failed: " + err.Error(),
+					})
+					return
+				}
+			}
+
+		default:
+			// text mode: do nothing
+		}
+
+		utils.Render(ctx, tpl, domain.PageData{
+			A:          a,
+			B:          b,
+			Mode:       mode,
+			IgnoreWS:   ignoreWS,
+			IgnoreCase: ignoreCase,
+		})
+		return
+	}
+
+	// Compare action (default)
+	if action == "" {
+		action = "compare"
+	}
+
+	compareA := a
+	compareB := b
+
+	// If mode is json/xml, compare normalized/pretty versions for stable diffs
+	if mode == "json" {
+		var err error
+		compareA, err = utils.PrettyJSON(a)
+		if err != nil {
+			utils.Render(ctx, tpl, domain.PageData{
+				A:          a,
+				B:          b,
+				Mode:       mode,
+				IgnoreWS:   ignoreWS,
+				IgnoreCase: ignoreCase,
+				Error:      "JSON parse error for A: " + err.Error(),
+			})
+			return
+		}
+		compareB, err = utils.PrettyJSON(b)
+		if err != nil {
+			utils.Render(ctx, tpl, domain.PageData{
+				A:          a,
+				B:          b,
+				Mode:       mode,
+				IgnoreWS:   ignoreWS,
+				IgnoreCase: ignoreCase,
+				Error:      "JSON parse error for B: " + err.Error(),
+			})
+			return
+		}
+	} else if mode == "xml" {
+		var err error
+		compareA, err = utils.PrettyXML(a)
+		if err != nil {
+			utils.Render(ctx, tpl, domain.PageData{
+				A:          a,
+				B:          b,
+				Mode:       mode,
+				IgnoreWS:   ignoreWS,
+				IgnoreCase: ignoreCase,
+				Error:      "XML parse error for A: " + err.Error(),
+			})
+			return
+		}
+		compareB, err = utils.PrettyXML(b)
+		if err != nil {
+			utils.Render(ctx, tpl, domain.PageData{
+				A:          a,
+				B:          b,
+				Mode:       mode,
+				IgnoreWS:   ignoreWS,
+				IgnoreCase: ignoreCase,
+				Error:      "XML parse error for B: " + err.Error(),
+			})
+			return
+		}
+	}
+
+	exact := compareA == compareB
+
+	na := compareA
+	nb := compareB
+	if ignoreWS {
+		na = utils.NormalizeWhitespace(na)
+		nb = utils.NormalizeWhitespace(nb)
+	}
+	if ignoreCase {
+		na = strings.ToLower(na)
+		nb = strings.ToLower(nb)
+	}
+
+	normalized := na == nb
+
+	data := domain.PageData{
+		A:          a,
+		B:          b,
+		Mode:       mode,
+		IgnoreWS:   ignoreWS,
+		IgnoreCase: ignoreCase,
+
+		ExactMatch:      exact,
+		NormalizedMatch: normalized,
+
+		ALen: len(compareA),
+		BLen: len(compareB),
+
+		AHash: utils.Sha256Hex(compareA),
+		BHash: utils.Sha256Hex(compareB),
+
+		LineDiff: utils.BasicLineDiffWithHighlight(compareA, compareB),
+	}
+
+	utils.Render(ctx, tpl, data)
+}
