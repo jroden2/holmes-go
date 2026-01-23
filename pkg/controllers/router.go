@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jroden2/holmes-go/pkg/controllers/public"
+	"github.com/jroden2/holmes-go/pkg/middlewares"
 	"github.com/rs/zerolog"
 )
 
@@ -28,7 +29,17 @@ func Initialise(logger *zerolog.Logger) {
 	hostPort := fmt.Sprintf("%s:%s", HOST, PORT)
 	logger.Info().Msg(hostPort)
 	router.Use(gin.Recovery())
+	router.Use(middlewares.ZerologMiddleware())
 
+	router.Static("/css", "./templates/css")
+	router.Static("/js", "./templates/js")
+	router.NoRoute(func(c *gin.Context) {
+		if c.Request.Method == "GET" {
+			c.Redirect(302, "/")
+			return
+		}
+		c.AbortWithStatus(404)
+	})
 	base := router.Group("")
 	{
 		public.Routes(base, logger)

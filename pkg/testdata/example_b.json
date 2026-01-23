@@ -1,0 +1,55 @@
+{
+  "company": {
+    "name": "TechCorp Industries",
+    "founded": 2015,
+    "headquarters": {
+      "city": "San Francisco",
+      "state": "California",
+      "country": "United States"
+    },
+    "employees": [
+      {
+        "id": "001",
+        "name": "Alice Johnson",
+        "position": "Senior Software Engineer",
+        "department": "Engineering",
+        "salary": {
+          "amount": 105000,
+          "currency": "USD"
+        }
+      },
+      {
+        "id": "002",
+        "name": "Bob Smith",
+        "position": "Product Manager",
+        "department": "Product",
+        "salary": {
+          "amount": 110000,
+          "currency": "USD"
+        }
+      },
+      {
+        "id": "003",
+        "name": "Carol Davis",
+        "position": "UX Designer",
+        "department": "Design",
+        "salary": {
+          "amount": 85000,
+          "currency": "USD"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "CloudSync Pro",
+        "version": "2.5.0",
+        "active": true
+      },
+      {
+        "name": "DataVault",
+        "version": "1.8.3",
+        "active": true
+      }
+    ]
+  }
+}

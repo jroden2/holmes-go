@@ -23,15 +23,19 @@ type BaseController interface {
 	Compare(ctx *gin.Context)
 }
 
-var (
-	tpl = template.Must(template.ParseFiles("./templates/index.html"))
-)
-
 func (c *baseController) Home(ctx *gin.Context) {
+	tpl, err := loadTemplates()
+	if err != nil {
+		c.logger.Fatal().Err(err).Msg("Failed to load templates")
+	}
 	utils.Render(ctx, tpl, domain.PageData{Mode: "text"})
 }
 
 func (c *baseController) Compare(ctx *gin.Context) {
+	tpl, err := loadTemplates()
+	if err != nil {
+		c.logger.Fatal().Err(err).Msg("Failed to load templates")
+	}
 	action := ctx.PostForm("action") // compare | format_a | format_b | format_both
 
 	mode := ctx.PostForm("mode")
@@ -231,4 +235,8 @@ func (c *baseController) Compare(ctx *gin.Context) {
 	}
 
 	utils.Render(ctx, tpl, data)
+}
+
+func loadTemplates() (*template.Template, error) {
+	return template.ParseFiles("./templates/index.html")
 }

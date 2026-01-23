@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<company>
+    <name>TechCorp Industries</name>
+    <founded>2015</founded>
+    <headquarters>
+        <city>San Francisco</city>
+        <state>California</state>
+        <country>United States</country>
+    </headquarters>
+    <employees>
+        <employee id="001">
+            <name>Alice Johnson</name>
+            <position>Software Engineer</position>
+            <department>Engineering</department>
+            <salary currency="USD">95000</salary>
+        </employee>
+        <employee id="002">
+            <name>Bob Smith</name>
+            <position>Product Manager</position>
+            <department>Product</department>
+            <salary currency="USD">110000</salary>
+        </employee>
+        <employee id="003">
+            <name>Carol Davis</name>
+            <position>UX Designer</position>
+            <department>Design</department>
+            <salary currency="USD">85000</salary>
+        </employee>
+    </employees>
+    <products>
+        <product>
+            <name>CloudSync Pro</name>
+            <version>2.4.1</version>
+            <active>true</active>
+        </product>
+        <product>
+            <name>DataVault</name>
+            <version>1.8.3</version>
+            <active>true</active>
+        </product>
+    </products>
+</company>
