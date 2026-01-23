@@ -81,7 +81,10 @@
                     <div class="row g-3 align-items-center">
                         <div class="col-md-3">
                             <label class="form-label small text-muted mb-1">Mode</label>
-                            <select name="mode" class="form-select">
+                            <select name="mode" id="modeSelect" class="form-select">
+                                <option value="auto" {{if or (eq .Mode "auto") (eq .Mode "")}}selected{{end}}>
+                                Auto detect
+                                </option>
                                 <option value="text" {{if eq .Mode "text"}}selected{{end}}>
                                 Text
                                 </option>
@@ -131,7 +134,7 @@
                         <div class="card-body">
                             <p class="text-muted small">Paste text OR upload a file:</p>
                             <input type="file" name="file_a" class="form-control mb-3" />
-                            <textarea name="a" class="form-control" rows="12">{{.A}}</textarea>
+                            <textarea id="textareaA" name="a" class="form-control" rows="12">{{.A}}</textarea>
                         </div>
                     </div>
                 </div>
@@ -261,6 +264,43 @@
         <div class="py-4"></div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const textareaA = document.getElementById('textareaA');
+        const modeSelect = document.getElementById('modeSelect');
+        let detectedMode = 'auto';
+
+        textareaA.addEventListener('input', function() {
+            if (modeSelect.value !== 'auto' && modeSelect.dataset.autoManaged !== 'true') {
+                return;
+            }
+
+            const content = this.value.trim();
+            if (content.startsWith('{') || content.startsWith('[')) {
+                try {
+                    JSON.parse(content);
+                    detectedMode = 'json';
+                } catch (e) { /* partial JSON, keep waiting */ }
+            } else if (content.startsWith('<')) {
+                if (content.includes('</') || content.endsWith('/>')) {
+                    detectedMode = 'xml';
+                }
+            } else if (content.length > 0) {
+                detectedMode = 'text';
+            }
+
+            if (detectedMode !== 'auto') {
+                modeSelect.value = detectedMode;
+                modeSelect.dataset.autoManaged = 'true';
+            }
+        });
+
+        modeSelect.addEventListener('change', function() {
+            delete modeSelect.dataset.autoManaged;
+        });
+    });
+</script>
 
 <script src="./js/bootstrap.bundle.min.js"></script>
 </body>

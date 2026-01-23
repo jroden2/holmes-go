@@ -28,7 +28,7 @@ func (c *baseController) Home(ctx *gin.Context) {
 	if err != nil {
 		c.logger.Fatal().Err(err).Msg("Failed to load templates")
 	}
-	utils.Render(ctx, tpl, domain.PageData{Mode: "text"})
+	utils.Render(ctx, tpl, domain.PageData{Mode: "auto"})
 }
 
 func (c *baseController) Compare(ctx *gin.Context) {
