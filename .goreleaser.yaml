@@ -34,7 +34,9 @@ archives:
       {{- .Os }}_
       {{- .Arch }}
     files:
-      - templates/**/*
+      - templates/index.html
+      - templates/js/**/*
+      - templates/css/**/*
       - LICENSE
       - README.md
 
