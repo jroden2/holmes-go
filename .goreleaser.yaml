@@ -17,10 +17,6 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=0
-    hooks:
-      post:
-        - cmd: codesign -s - {{ .Path }}
-          os: darwin
 
 universal_binaries:
   - id: holmes
@@ -37,6 +33,10 @@ archives:
       {{- .Version }}_
       {{- .Os }}_
       {{- .Arch }}
+    files:
+      - templates/**/*
+      - LICENSE
+      - README.md
 
 changelog:
   sort: asc

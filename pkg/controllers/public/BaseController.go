@@ -238,5 +238,5 @@ func (c *baseController) Compare(ctx *gin.Context) {
 }
 
 func loadTemplates() (*template.Template, error) {
-	return template.ParseFiles("./templates/index.html")
+	return template.ParseFiles("templates/index.html")
 }
