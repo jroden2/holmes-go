@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -22,15 +24,15 @@ universal_binaries:
     name_template: 'holmes'
 
 archives:
-  - format: tar.gz
+  - id: default
+    format_overrides:
+      - goos: windows
+        format: zip
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
       {{- .Os }}_
       {{- .Arch }}
-    format_overrides:
-      - goos: windows
-        format: zip
 
 changelog:
   sort: asc
