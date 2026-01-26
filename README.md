@@ -95,6 +95,11 @@ xattr -dr com.apple.quarantine holmes
 
 ---
 
+## How do I run it?!
+
+once you've started the service (or container) - head to localhost:8080 and it'll have a full ui present for you to use, its pretty basic but works!
+
+--
 ## Security-First by Design
 
 Holmes is intentionally designed to keep all comparisons on your machine.
