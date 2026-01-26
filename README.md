@@ -10,6 +10,12 @@
 Holmes focuses on privacy and safety by ensuring all comparisons run entirely on your machine.
 
 ---
+## Screenshots
+![image1](https://github.com/jroden2/holmes-go/blob/main/Screenshot%202026-01-26%20at%2010.37.54.png "image1")
+![image2](https://github.com/jroden2/holmes-go/blob/main/Screenshot%202026-01-26%20at%2010.38.24.png "image3")
+![image3](https://github.com/jroden2/holmes-go/blob/main/Screenshot%202026-01-26%20at%2010.38.35.png "image3")
+
+---
 
 ## Why Holmes?
 
