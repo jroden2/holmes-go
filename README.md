@@ -96,12 +96,10 @@ xattr -dr com.apple.quarantine holmes
 ---
 
 ## How do I run it?!
-
 once you've started the service (or container) - head to localhost:8080 and it'll have a full ui present for you to use, its pretty basic but works!
 
---
+---
 ## Security-First by Design
-
 Holmes is intentionally designed to keep all comparisons on your machine.
 
 * No telemetry
@@ -111,9 +109,7 @@ Holmes is intentionally designed to keep all comparisons on your machine.
 If you are diffing data that should not be uploaded to the internet, Holmes is built for that use case.
 
 ---
-
 ## Example Use Cases
-
 * Comparing configuration files across environments (e.g. development vs production)
 * Reviewing JSON API response changes
 * Debugging differences in structured output
@@ -122,9 +118,7 @@ If you are diffing data that should not be uploaded to the internet, Holmes is b
 ---
 
 ## Contributing
-
 Contributions are welcome.
-
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
@@ -134,5 +128,4 @@ Bug reports and feature requests can be submitted via GitHub issues.
 ---
 
 ## License
-
 This project is licensed under the MIT License.
