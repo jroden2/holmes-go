@@ -1,4 +1,4 @@
-# Holmes-Go 
+![banner](https://github.com/jroden2/holmes-go/blob/main/holmes-banner.png "Holmes-go banner")
 ## Local Diff Checker
 
 ![Go Version](https://img.shields.io/badge/Go-1.25.1-blue)
