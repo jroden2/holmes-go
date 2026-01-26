@@ -15,8 +15,23 @@ import (
 )
 
 func setupTestController() BaseController {
+	workdir, _ := os.Getwd()
+	if !strings.HasSuffix(workdir, "holmes-go") {
+		_ = os.Chdir("../../../")
+	}
+
 	logger := zerolog.New(os.Stdout)
 	return NewBaseController(&logger)
+}
+
+func TestMain(m *testing.M) {
+	workdir, _ := os.Getwd()
+	if !strings.HasSuffix(workdir, "holmes-go") {
+		_ = os.Chdir("../../../")
+	}
+	code := m.Run()
+	_ = os.Chdir(workdir)
+	os.Exit(code)
 }
 
 func TestHome(t *testing.T) {
@@ -375,9 +390,9 @@ func TestCompare_FormatActions(t *testing.T) {
 
 			assert.Equal(t, http.StatusOK, w.Code)
 
-			body := w.Body.String()
+			body := strings.ToLower(w.Body.String())
 			if tt.expectError {
-				assert.Contains(t, body, "error", "Expected error in response")
+				assert.Contains(t, body, "failed", "Expected error message in response")
 			}
 		})
 	}
@@ -395,15 +410,15 @@ func TestCompare_WithTestDataFiles(t *testing.T) {
 	}{
 		{
 			name:          "json test files",
-			fileA:         "../testdata/example_a.json",
-			fileB:         "../testdata/example_b.json",
+			fileA:         "pkg/testdata/example_a.json",
+			fileB:         "pkg/testdata/example_b.json",
 			mode:          "json",
 			expectedExact: false, // Since we made changes in example_b
 		},
 		{
 			name:          "xml test files",
-			fileA:         "../testdata/example_a.xml",
-			fileB:         "../testdata/example_b.xml",
+			fileA:         "pkg/testdata/example_a.xml",
+			fileB:         "pkg/testdata/example_b.xml",
 			mode:          "xml",
 			expectedExact: false, // Since we made changes in example_b
 		},
