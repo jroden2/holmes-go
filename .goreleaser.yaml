@@ -18,18 +18,6 @@ builds:
     env:
       - CGO_ENABLED=0
 
-dockers:
-  - image_templates:
-      - "jroden2/holmes-go:latest"
-      - "jroden2/holmes-go:{{ .Tag }}"
-      # - "jroden2/holmes-go:v{{ .Major }}" # Removed major version until we hit a 1.x.x version.
-    dockerfile: Dockerfile
-    extra_files:
-      - templates/
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-
 universal_binaries:
   - id: holmes
     replace: true
