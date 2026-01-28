@@ -22,7 +22,7 @@ dockers:
   - image_templates:
       - "jroden2/holmes-go:latest"
       - "jroden2/holmes-go:{{ .Tag }}"
-      - "jroden2/holmes-go:v{{ .Major }}"
+      # - "jroden2/holmes-go:v{{ .Major }}" # Removed major version until we hit a 1.x.x version.
     dockerfile: Dockerfile
     extra_files:
       - templates/
