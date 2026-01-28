@@ -20,9 +20,9 @@ builds:
 
 dockers:
   - image_templates:
-      - "username/repository:latest"
-      - "username/repository:{{ .Tag }}"
-      - "username/repository:v{{ .Major }}"
+      - "jroden2/holmes-go:latest"
+      - "jroden2/holmes-go:{{ .Tag }}"
+      - "jroden2/holmes-go:v{{ .Major }}"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
