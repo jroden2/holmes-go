@@ -24,6 +24,8 @@ dockers:
       - "jroden2/holmes-go:{{ .Tag }}"
       - "jroden2/holmes-go:v{{ .Major }}"
     dockerfile: Dockerfile
+    extra_files:
+      - templates/
     build_flag_templates:
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
