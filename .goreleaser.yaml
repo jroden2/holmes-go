@@ -18,6 +18,16 @@ builds:
     env:
       - CGO_ENABLED=0
 
+dockers:
+  - image_templates:
+      - "username/repository:latest"
+      - "username/repository:{{ .Tag }}"
+      - "username/repository:v{{ .Major }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+
 universal_binaries:
   - id: holmes
     replace: true
