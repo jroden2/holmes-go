@@ -19,7 +19,15 @@ func NewCacheService() CacheService {
 	}
 }
 
-type CacheService interface{}
+type CacheService interface {
+	Add(key string, value []byte)
+	Get(key string) ([]byte, bool)
+	Exists(key string) bool
+	PeekAll() map[any]any
+	Purge()
+	PurgeExpired()
+	Close()
+}
 
 func (c *cacheService) Add(key string, value []byte) {
 	c.sonic.Add(key, value)
