@@ -14,7 +14,7 @@ func NewCacheService() CacheService {
 	return &cacheService{
 		sonic: sonic.NewSonicCache(sonic.SonicOptions{
 			Capacity: 5,
-			TTL:      5 * time.Minute,
+			TTL:      15 * time.Minute,
 		}),
 	}
 }
