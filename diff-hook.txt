@@ -1,36 +1,32 @@
 #!/bin/bash
-read local_ref local_sha remote_ref remote_sha
 
-if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
-    remote_sha=$(git hash-object -t tree /dev/null)
-fi
-
-files=$(git diff --name-only $remote_sha $local_sha)
-OPEN_CMD="open"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    OPEN_CMD="xdg-open"
-fi
-
-for file in $files; do
-    # Extract versions A and B
-    content_a=$(git show $remote_sha:$file 2>/dev/null || echo "")
-    content_b=$(git show $local_sha:$file 2>/dev/null || echo "")
-
-    response=$(curl -s -X POST http://localhost:8080/magic/new \
-        -F "a=$content_a" \
-        -F "b=$content_b")
-
-    # Extract ID from JSON {"id":"..."}
-    res_id=$(echo $response | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
-
-    if [ ! -z "$res_id" ]; then
-        URL="http://localhost:8080/magic?id=$res_id"
-        echo "Successfully processed: $file"
-        echo "Link: $URL"
-
-        # Open the link in the default browser
-        $OPEN_CMD "$URL" > /dev/null 2>&1
+while read local_ref local_sha remote_ref remote_sha
+do
+    # Handle new branches (comparing against an empty tree)
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+        remote_sha=$(git hash-object -t tree /dev/null)
     fi
+    files=$(git diff --name-only $remote_sha $local_sha)
+
+    OPEN_CMD="open"
+    [[ "$OSTYPE" == "linux-gnu"* ]] && OPEN_CMD="xdg-open"
+
+    for file in $files; do
+        content_a=$(git show $remote_sha:$file 2>/dev/null || echo "")
+        content_b=$(git show $local_sha:$file 2>/dev/null || echo "")
+
+        response=$(curl -s -X POST http://localhost:8080/magic/new \
+            -F "a=$content_a" \
+            -F "b=$content_b")
+
+        res_id=$(echo $response | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+
+        if [ ! -z "$res_id" ]; then
+            URL="http://localhost:8080/magic?id=$res_id"
+            echo "Successfully processed: $file"
+            $OPEN_CMD "$URL" > /dev/null 2>&1
+        fi
+    done
 done
 
 exit 0
