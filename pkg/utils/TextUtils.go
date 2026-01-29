@@ -2,6 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
 	"io"
@@ -61,4 +63,12 @@ func PrettyXML(s string) (string, error) {
 
 	out := strings.TrimSpace(buf.String()) + "\n"
 	return out, nil
+}
+
+func Generate32CharString() (string, error) {
+	b := make([]byte, 16) // 16 bytes = 32 hex chars
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }

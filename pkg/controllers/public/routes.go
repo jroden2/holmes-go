@@ -6,12 +6,20 @@ import (
 )
 
 func Routes(route *gin.RouterGroup, logger *zerolog.Logger) {
-	baseController := NewBaseController(logger)
 
 	baseControllerGroup := route.Group("")
 	{
-		baseControllerGroup.GET("/", baseController.Home)
-		baseControllerGroup.POST("/compare", baseController.Compare)
-
+		bc := NewBaseController(logger)
+		baseControllerGroup.GET("/", bc.Home)
+		baseControllerGroup.POST("/compare", bc.Compare)
+		baseControllerGroup.POST("/magic/new", bc.CreateMagicKey)
+		baseControllerGroup.GET("/magic/peek", bc.PeekMagicKeys)
+		baseControllerGroup.GET("/magic", bc.CompareUsingMagicLink)
+	}
+	encodeControllerGroup := route.Group("sha")
+	{
+		ec := NewEncodeController(logger, nil)
+		encodeControllerGroup.POST("/encode", ec.EncodeSha256)
+		encodeControllerGroup.POST("/compute", ec.ComputeSha256)
 	}
 }

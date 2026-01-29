@@ -1,6 +1,7 @@
 package public
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -8,20 +9,28 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestController() BaseController {
+func setupTestController() (BaseController, *gin.Engine) {
 	workdir, _ := os.Getwd()
 	if !strings.HasSuffix(workdir, "holmes-go") {
 		_ = os.Chdir("../../../")
 	}
 
 	logger := zerolog.New(os.Stdout)
-	return NewBaseController(&logger)
+	bc := NewBaseController(&logger)
+
+	r := gin.New()
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
+
+	return bc, r
 }
 
 func TestMain(m *testing.M) {
@@ -36,13 +45,13 @@ func TestMain(m *testing.M) {
 
 func TestHome(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	controller := setupTestController()
+	controller, r := setupTestController()
+
+	r.GET("/", controller.Home)
 
 	w := httptest.NewRecorder()
-	ctx, _ := gin.CreateTestContext(w)
-	ctx.Request = httptest.NewRequest(http.MethodGet, "/", nil)
-
-	controller.Home(ctx)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "Local Diff Checker")
@@ -127,10 +136,10 @@ func TestCompare_TextMode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			controller := setupTestController()
+			controller, r := setupTestController()
+			r.POST("/compare", controller.Compare)
 
 			w := httptest.NewRecorder()
-			ctx, _ := gin.CreateTestContext(w)
 
 			form := url.Values{}
 			form.Add("a", tt.a)
@@ -143,10 +152,9 @@ func TestCompare_TextMode(t *testing.T) {
 				form.Add("ignore_case", "on")
 			}
 
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-			ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-			controller.Compare(ctx)
+			req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
 
@@ -209,20 +217,19 @@ func TestCompare_JSONMode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			controller := setupTestController()
+			controller, r := setupTestController()
+			r.POST("/compare", controller.Compare)
 
 			w := httptest.NewRecorder()
-			ctx, _ := gin.CreateTestContext(w)
 
 			form := url.Values{}
 			form.Add("a", tt.a)
 			form.Add("b", tt.b)
 			form.Add("mode", "json")
 
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-			ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-			controller.Compare(ctx)
+			req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
 
@@ -276,20 +283,19 @@ func TestCompare_XMLMode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			controller := setupTestController()
+			controller, r := setupTestController()
+			r.POST("/compare", controller.Compare)
 
 			w := httptest.NewRecorder()
-			ctx, _ := gin.CreateTestContext(w)
 
 			form := url.Values{}
 			form.Add("a", tt.a)
 			form.Add("b", tt.b)
 			form.Add("mode", "xml")
 
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-			ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-			controller.Compare(ctx)
+			req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
 
@@ -372,10 +378,10 @@ func TestCompare_FormatActions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			controller := setupTestController()
+			controller, r := setupTestController()
+			r.POST("/compare", controller.Compare)
 
 			w := httptest.NewRecorder()
-			ctx, _ := gin.CreateTestContext(w)
 
 			form := url.Values{}
 			form.Add("action", tt.action)
@@ -383,10 +389,9 @@ func TestCompare_FormatActions(t *testing.T) {
 			form.Add("a", tt.a)
 			form.Add("b", tt.b)
 
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-			ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-			controller.Compare(ctx)
+			req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
 
@@ -433,20 +438,19 @@ func TestCompare_WithTestDataFiles(t *testing.T) {
 			bContent, err := os.ReadFile(tt.fileB)
 			require.NoError(t, err, "Failed to read file B")
 
-			controller := setupTestController()
+			controller, r := setupTestController()
+			r.POST("/compare", controller.Compare)
 
 			w := httptest.NewRecorder()
-			ctx, _ := gin.CreateTestContext(w)
 
 			form := url.Values{}
 			form.Add("a", string(aContent))
 			form.Add("b", string(bContent))
 			form.Add("mode", tt.mode)
 
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-			ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-			controller.Compare(ctx)
+			req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
 			assert.NotContains(t, w.Body.String(), "error")
@@ -460,20 +464,19 @@ func TestCompare_WithTestDataFiles(t *testing.T) {
 
 func TestCompare_EmptyInputs(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	controller := setupTestController()
+	controller, r := setupTestController()
+	r.POST("/compare", controller.Compare)
 
 	w := httptest.NewRecorder()
-	ctx, _ := gin.CreateTestContext(w)
 
 	form := url.Values{}
 	form.Add("a", "")
 	form.Add("b", "")
 	form.Add("mode", "text")
 
-	ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-	ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	controller.Compare(ctx)
+	req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	body := w.Body.String()
@@ -517,22 +520,52 @@ func TestCompare_ModeValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			controller := setupTestController()
+			controller, r := setupTestController()
+			r.POST("/compare", controller.Compare)
 
 			w := httptest.NewRecorder()
-			ctx, _ := gin.CreateTestContext(w)
 
 			form := url.Values{}
 			form.Add("a", "test")
 			form.Add("b", "test")
 			form.Add("mode", tt.mode)
 
-			ctx.Request = httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
-			ctx.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-			controller.Compare(ctx)
+			req := httptest.NewRequest(http.MethodPost, "/compare", strings.NewReader(form.Encode()))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			r.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code)
 		})
 	}
+}
+
+func TestCompareUsingMagicLink_Success(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	controller, r := setupTestController()
+	r.GET("/magic", controller.CompareUsingMagicLink)
+
+	// First, we need to create a magic link or mock the cache.
+	// Since we are using the real controller, let's use CreateMagicKey to populate it.
+	r.POST("/magic/new", controller.CreateMagicKey)
+
+	w1 := httptest.NewRecorder()
+	form := url.Values{}
+	form.Add("a", "original")
+	form.Add("b", "new")
+	req1 := httptest.NewRequest(http.MethodPost, "/magic/new", strings.NewReader(form.Encode()))
+	req1.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	r.ServeHTTP(w1, req1)
+
+	var resp struct {
+		ID string `json:"id"`
+	}
+	json.Unmarshal(w1.Body.Bytes(), &resp)
+
+	// Now test CompareUsingMagicLink
+	w2 := httptest.NewRecorder()
+	req2 := httptest.NewRequest(http.MethodGet, "/magic?id="+resp.ID, nil)
+	r.ServeHTTP(w2, req2)
+
+	assert.Equal(t, http.StatusOK, w2.Code)
+	assert.Contains(t, w2.Body.String(), "<form id=\"form\" action=\"/compare\" method=\"post\">")
 }

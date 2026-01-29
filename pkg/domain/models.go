@@ -1,6 +1,8 @@
 package domain
 
-import "html/template"
+import (
+	"html/template"
+)
 
 type PageData struct {
 	A, B                 string
@@ -22,4 +24,20 @@ type LineDiffRow struct {
 	A, B         string
 	AHTML, BHTML template.HTML
 	Status       string
+}
+
+type DiffPayload struct {
+	ID       string `json:"id"`
+	ShortID  string `json:"short_id"`
+	Original string `json:"a"`
+	New      string `json:"b"`
+	Format   string `json:"f"` // Json, XML, Text
+}
+
+func NewDiffPayload(original, new string) DiffPayload {
+	return DiffPayload{"", "", original, new, "text"}
+}
+
+func (dp *DiffPayload) GetID() string {
+	return dp.ShortID
 }
