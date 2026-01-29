@@ -11,7 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jroden2/holmes-go/pkg/controllers/public"
 	"github.com/jroden2/holmes-go/pkg/middlewares"
+	"github.com/jroden2/holmes-go/pkg/utils"
 	"github.com/rs/zerolog"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 )
 
 func Initialise(logger *zerolog.Logger) {
@@ -29,6 +33,13 @@ func Initialise(logger *zerolog.Logger) {
 	hostPort := fmt.Sprintf("%s:%s", HOST, PORT)
 	logger.Info().Msg(hostPort)
 	router.Use(gin.Recovery())
+
+	sessionSecret := os.Getenv("SessionSecret")
+	if sessionSecret == "" {
+		sessionSecret, _ = utils.Generate32CharString()
+	}
+	store := cookie.NewStore([]byte(sessionSecret))
+	router.Use(sessions.Sessions("mysession", store))
 	router.Use(middlewares.ZerologMiddleware())
 
 	router.Static("/css", "./templates/css")

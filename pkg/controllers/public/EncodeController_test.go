@@ -16,13 +16,13 @@ func TestNewEncodeController(t *testing.T) {
 	logger := zerolog.New(os.Stdout)
 
 	t.Run("with nil service", func(t *testing.T) {
-		controller := NewEncodeController(logger, nil)
+		controller := NewEncodeController(&logger, nil)
 		assert.NotNil(t, controller)
 	})
 
 	t.Run("with provided service", func(t *testing.T) {
 		es := services.NewEncodeService(&logger)
-		controller := NewEncodeController(logger, &es)
+		controller := NewEncodeController(&logger, &es)
 		assert.NotNil(t, controller)
 	})
 }
@@ -30,7 +30,7 @@ func TestNewEncodeController(t *testing.T) {
 func TestEncodeSha256(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	logger := zerolog.New(os.Stdout)
-	controller := NewEncodeController(logger, nil)
+	controller := NewEncodeController(&logger, nil)
 
 	t.Run("successful encoding", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -61,7 +61,7 @@ func TestEncodeSha256(t *testing.T) {
 func TestComputeSha256(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	logger := zerolog.New(os.Stdout)
-	controller := NewEncodeController(logger, nil)
+	controller := NewEncodeController(&logger, nil)
 
 	t.Run("matching hash", func(t *testing.T) {
 		w := httptest.NewRecorder()

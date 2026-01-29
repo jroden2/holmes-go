@@ -12,6 +12,9 @@ func Routes(route *gin.RouterGroup, logger *zerolog.Logger) {
 		bc := NewBaseController(logger)
 		baseControllerGroup.GET("/", bc.Home)
 		baseControllerGroup.POST("/compare", bc.Compare)
+		baseControllerGroup.POST("/magic/new", bc.CreateMagicKey)
+		baseControllerGroup.GET("/magic/peek", bc.PeekMagicKeys)
+		baseControllerGroup.GET("/magic", bc.CompareUsingMagicLink)
 	}
 	encodeControllerGroup := route.Group("sha")
 	{
