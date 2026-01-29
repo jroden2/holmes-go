@@ -5,7 +5,7 @@ go 1.25.1
 require (
 	github.com/gin-contrib/sessions v1.0.4
 	github.com/gin-gonic/gin v1.11.0
-	github.com/jroden2/sonic v0.0.2
+	github.com/jroden2/sonic v0.0.3
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.11.1
 )

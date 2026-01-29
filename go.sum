@@ -45,6 +45,8 @@ github.com/gorilla/sessions v1.4.0 h1:kpIYOp/oi6MG/p5PgxApU8srsSw9tuFbt46Lt7auzq
 github.com/gorilla/sessions v1.4.0/go.mod h1:FLWm50oby91+hl7p/wRxDth9bWSuk0qVL2emc7lT5ik=
 github.com/jroden2/sonic v0.0.2 h1:66OM2IwS3If2FccWDG5NErF/ioEWS6RkFU3Qy/R5FMk=
 github.com/jroden2/sonic v0.0.2/go.mod h1:seBgYDUPJXbdL5XC0TmtsHa1qNoMwqPrqeCoTrmsz0U=
+github.com/jroden2/sonic v0.0.3 h1:Aky3uHo7mag5ijXSay72RSkEDFT/ypvOyxO80mbNMK8=
+github.com/jroden2/sonic v0.0.3/go.mod h1:seBgYDUPJXbdL5XC0TmtsHa1qNoMwqPrqeCoTrmsz0U=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/klauspost/cpuid/v2 v2.3.0 h1:S4CRMLnYUhGeDFDqkGriYKdfoFlDnMtqTiI/sFzhA9Y=
