@@ -34,3 +34,4 @@ go.work.sum
 /release/*
 # Added by goreleaser init:
 dist/
+.DS_Store
