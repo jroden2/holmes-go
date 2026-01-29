@@ -39,11 +39,11 @@ func (c *cacheService) Get(key string) ([]byte, bool) {
 		return nil, false
 	}
 
-	bytes, ok := retVal.([]byte)
+	entry, ok := retVal.(sonic.Entry)
 	if !ok {
 		return nil, false
 	}
-	return bytes, true
+	return entry.Value.([]byte), true
 }
 
 func (c *cacheService) Exists(key string) bool {

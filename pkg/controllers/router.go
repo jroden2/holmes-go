@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jroden2/holmes-go/pkg/controllers/public"
 	"github.com/jroden2/holmes-go/pkg/middlewares"
-	"github.com/jroden2/holmes-go/pkg/utils"
 	"github.com/rs/zerolog"
 
 	"github.com/gin-contrib/sessions"
@@ -36,7 +35,7 @@ func Initialise(logger *zerolog.Logger) {
 
 	sessionSecret := os.Getenv("SessionSecret")
 	if sessionSecret == "" {
-		sessionSecret, _ = utils.Generate32CharString()
+		sessionSecret = "Ithinkthisisa34characterlongstring"
 	}
 	store := cookie.NewStore([]byte(sessionSecret))
 	router.Use(sessions.Sessions("mysession", store))
@@ -44,13 +43,13 @@ func Initialise(logger *zerolog.Logger) {
 
 	router.Static("/css", "./templates/css")
 	router.Static("/js", "./templates/js")
-	router.NoRoute(func(c *gin.Context) {
-		if c.Request.Method == "GET" {
-			c.Redirect(302, "/")
-			return
-		}
-		c.AbortWithStatus(404)
-	})
+	//router.NoRoute(func(c *gin.Context) {
+	//	if c.Request.Method == "GET" {
+	//		c.Redirect(302, "/")
+	//		return
+	//	}
+	//	c.AbortWithStatus(404)
+	//})
 	base := router.Group("")
 	{
 		public.Routes(base, logger)
