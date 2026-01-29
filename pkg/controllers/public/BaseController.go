@@ -103,23 +103,42 @@ func (c *baseController) CompareUsingMagicLink(ctx *gin.Context) {
 	c.logger.Info().Msgf("Magic link provided: %s", magicLink)
 
 	var sessionPayload domain.DiffPayload
-	if blob, exists := c.sonic.Get(magicLink); !exists {
-		c.logger.Error().Msg("Magic link does not exist")
-		ctx.Redirect(http.StatusFound, "/?error=not_found")
-		return
-	} else {
-		err := json.Unmarshal(blob, &sessionPayload)
-		if err != nil {
-			c.logger.Error().Err(err).Msg("Failed to unmarshal magic link")
-			ctx.Redirect(http.StatusFound, "/?error=unmarshal_failed")
+	var blob []byte
+	var exists bool
+
+	if blob, exists = c.sonic.Get(magicLink); !exists {
+		kvp := c.sonic.PeekAll()
+		found := false
+		for k := range kvp {
+			if keyStr, ok := k.(string); ok {
+				if strings.HasPrefix(keyStr, magicLink) || strings.HasPrefix(magicLink, keyStr) {
+					blob, exists = c.sonic.Get(keyStr)
+					if exists {
+						found = true
+						break
+					}
+				}
+			}
+		}
+
+		if !found {
+			c.logger.Error().Msg("Magic link does not exist")
+			ctx.Redirect(http.StatusFound, "/?error=not_found")
 			return
 		}
+	}
+
+	err := json.Unmarshal(blob, &sessionPayload)
+	if err != nil {
+		c.logger.Error().Err(err).Msg("Failed to unmarshal magic link")
+		ctx.Redirect(http.StatusFound, "/?error=unmarshal_failed")
+		return
 	}
 
 	session := sessions.Default(ctx)
 	session.Set("a", sessionPayload.Original)
 	session.Set("b", sessionPayload.New)
-	err := session.Save()
+	err = session.Save()
 	if err != nil {
 		c.logger.Error().Err(err).Msg("Failed to save session")
 		ctx.Redirect(http.StatusFound, "/?error=session_failed")
