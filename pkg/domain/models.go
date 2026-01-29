@@ -23,3 +23,9 @@ type LineDiffRow struct {
 	AHTML, BHTML template.HTML
 	Status       string
 }
+
+type DiffPayload struct {
+	Original string `json:"a"`
+	New      string `json:"b"`
+	Format   string `json:"f"` // Json, XML, Text
+}

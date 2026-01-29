@@ -2,8 +2,11 @@ package utils
 
 import (
 	"bytes"
+	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	"github.com/jroden2/holmes-go/pkg/domain"
 	"io"
 	"strings"
 )

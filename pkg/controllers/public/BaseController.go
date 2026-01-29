@@ -31,6 +31,10 @@ func (c *baseController) Home(ctx *gin.Context) {
 	utils.Render(ctx, tpl, domain.PageData{Mode: "auto"})
 }
 
+func (c *baseController) CompareUsingMagicLink(ctx *gin.Context) {
+
+}
+
 func (c *baseController) Compare(ctx *gin.Context) {
 	tpl, err := loadTemplates()
 	if err != nil {
