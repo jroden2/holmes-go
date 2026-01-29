@@ -9,14 +9,14 @@ import (
 )
 
 type encodeController struct {
-	logger zerolog.Logger
+	logger *zerolog.Logger
 	es     services.EncodeService
 }
 
-func NewEncodeController(logger zerolog.Logger, es *services.EncodeService) EncodeController {
+func NewEncodeController(logger *zerolog.Logger, es *services.EncodeService) EncodeController {
 	var newEs services.EncodeService
 	if es == nil {
-		newEs = services.NewEncodeService(&logger)
+		newEs = services.NewEncodeService(logger)
 	}
 
 	return &encodeController{
