@@ -1,0 +1,30 @@
+#!/bin/bash
+
+read local_ref local_sha remote_ref remote_sha
+
+if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    remote_sha=$(git hash-object -t tree /dev/null)
+fi
+
+files=$(git diff --name-only $remote_sha $local_sha)
+
+for file in $files; do
+    content_a=$(git show $remote_sha:$file 2>/dev/null || echo "")
+    content_b=$(git show $local_sha:$file 2>/dev/null || echo "")
+
+    response=$(curl -s -X POST http://localhost:8080/magic/new \
+        -F "a=$content_a" \
+        -F "b=$content_b")
+
+    # Extract ID using sed (searches for "id":"value" and grabs the value)
+    # This works for the format {"id":"ce34e5b4"}
+    res_id=$(echo $response | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+
+    if [ ! -z "$res_id" ]; then
+        echo "Successfully processed: $file"
+        echo "View diff here: http://localhost:8080/magic?id=$res_id"
+        echo "---"
+    fi
+done
+
+exit 0
